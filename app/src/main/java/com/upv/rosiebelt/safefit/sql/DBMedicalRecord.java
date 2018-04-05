@@ -1,5 +1,6 @@
 package com.upv.rosiebelt.safefit.sql;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -14,10 +15,10 @@ public class DBMedicalRecord {
     public static final String DATABASE_NAME = "safefile.db";
     public static final int DATABASE_VERSION = 1;
 
-    private static final String SQL_CREATE_ENTRIES = "CREATE TABLE " +MdRecordEntry.TABLE_NAME+ " (" + MdRecordEntry._ID + " INTEGER PRIMARY KEY, "
-            + MdRecordEntry.COLUMN_NAME_ADDRESS + " TEXT," + MdRecordEntry.COLUMN_NAME_DATE_OF_BIRTH + " DATETIME, "
-            +MdRecordEntry.COLUMN_NAME_MARITAL_STATUS + " Text," + MdRecordEntry.COLUMN_NAME_SEX+ " TEXT,"+ MdRecordEntry.COLUMN_NAME_ALLERGIES +" TEXT)";
-    private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " +  MdRecordEntry.TABLE_NAME;
+    public static final String SQL_CREATE_ENTRIES = "CREATE TABLE IF NOT EXISTS " +MdRecordEntry.TABLE_NAME+ " (" + MdRecordEntry._ID + " INTEGER PRIMARY KEY, "
+            + MdRecordEntry.COLUMN_LABEL + " TEXT,"
+            + MdRecordEntry.COLUMN_CONTENT + " TEXT)";
+    public static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " +  MdRecordEntry.TABLE_NAME;
 
     public MdRecordDBHelper mdRecordDBHelper;
 
@@ -27,23 +28,11 @@ public class DBMedicalRecord {
 
     public static class MdRecordEntry implements BaseColumns{
         public static final String TABLE_NAME = "medical_record_table";
-        public static final String COLUMN_NAME_DATE_OF_BIRTH = "birthday";
-        public static final String COLUMN_NAME_ADDRESS = "address";
-        public static final String COLUMN_NAME_MARITAL_STATUS = "marital_status";
-        public static final String COLUMN_NAME_SEX = "sex";
-        public static final String COLUMN_NAME_ALLERGIES = "allergies";
+        public static final String COLUMN_LABEL = "label";
+        public static final String COLUMN_CONTENT = "content";
+
     }
 
-    public boolean exist(){
-        SQLiteDatabase db = mdRecordDBHelper.getReadableDatabase();
-        Cursor cursor = db.query(MdRecordEntry.TABLE_NAME, null, null, null, null, null, null);
-        if(cursor.getCount() == 0){
-            cursor.close();
-            return false;
-        }
-        cursor.close();
-        return true;
-    }
 
     public class MdRecordDBHelper extends SQLiteOpenHelper{
 
@@ -58,7 +47,8 @@ public class DBMedicalRecord {
 
         @Override
         public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-            sqLiteDatabase.execSQL(SQL_CREATE_ENTRIES);
+            sqLiteDatabase.execSQL(SQL_DELETE_ENTRIES);
+            onCreate(sqLiteDatabase);
         }
 
         @Override
@@ -66,4 +56,27 @@ public class DBMedicalRecord {
             onUpgrade(db, oldVersion, newVersion);
         }
     }
+    public void setData(String column, String data, int id){
+        SQLiteDatabase db = mdRecordDBHelper.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(column, data);
+        long newRowID = db.update(MdRecordEntry.TABLE_NAME, contentValues,"_id="+id, null);
+    }
+
+    public void addData(String label, String content){
+        SQLiteDatabase db = mdRecordDBHelper.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MdRecordEntry.COLUMN_LABEL, label);
+        contentValues.put(MdRecordEntry.COLUMN_CONTENT, content);
+        long newRowID = db.insert(MdRecordEntry.TABLE_NAME,null, contentValues);
+    }
+
+    public Cursor getData(String[] projection){
+        SQLiteDatabase db = mdRecordDBHelper.getReadableDatabase();
+        Cursor cursor = db.query(MdRecordEntry.TABLE_NAME, projection,null, null, null, null, null);
+        cursor.moveToFirst();
+        return cursor;
+    }
+
+
 }

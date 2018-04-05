@@ -7,4 +7,5 @@
     <color name="loadingBackgroundColor">#f4c22b</color>
     <color name="backgroundColor">#ffffff</color>
     <color name="white">#ffffff</color>
+    <color name="fab_background">#f7d600</color>
 </resources>

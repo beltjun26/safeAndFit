@@ -8,6 +8,8 @@ import android.support.v7.widget.Toolbar;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
+import com.upv.rosiebelt.safefit.utility.SettingsAdapter;
+
 import java.util.ArrayList;
 import java.util.List;
 

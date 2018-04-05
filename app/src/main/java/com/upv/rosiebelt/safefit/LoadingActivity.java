@@ -40,7 +40,8 @@ public class LoadingActivity extends AppCompatActivity {
         accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         final DBUser dbuser = new DBUser(LoadingActivity.this);
-        if(!dbuser.exist()){
+        int userid = dbuser.exist();
+        if(userid == -1){
             final View view = (LayoutInflater.from(LoadingActivity.this)).inflate(R.layout.popup_username, null);
             AlertDialog.Builder alertbuilder = new AlertDialog.Builder(LoadingActivity.this);
             alertbuilder.setView(view);
@@ -49,8 +50,7 @@ public class LoadingActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     String name_input = ((EditText)view.findViewById(R.id.userName)).getText().toString();
-                    dbuser.setUser(name_input);
-//                    Toast.makeText(LoadingActivity.this, name_input, Toast.LENGTH_SHORT).show();
+                    long id = dbuser.setUser(name_input);
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -69,7 +69,10 @@ public class LoadingActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     loadingText.setVisibility(View.VISIBLE);
-                                    startActivity(new Intent(LoadingActivity.this, HomeActivity.class));
+                                    Intent intent = new Intent(LoadingActivity.this, HomeActivity.class);
+                                    intent.putExtra("USER_ID", dbuser.exist());
+                                    startActivity(intent);
+
                                 }
                             });
                         }
@@ -98,7 +101,9 @@ public class LoadingActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             loadingText.setVisibility(View.VISIBLE);
-                            startActivity(new Intent(LoadingActivity.this, HomeActivity.class));
+                            Intent intent = new Intent(LoadingActivity.this, HomeActivity.class);
+                            intent.putExtra("USER_ID", dbuser.exist());
+                            startActivity(intent);
                         }
                     });
                 }

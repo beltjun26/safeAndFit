@@ -1,8 +1,13 @@
 package com.upv.rosiebelt.safefit.fragments;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -12,9 +17,14 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.google.android.gms.location.DetectedActivity;
 import com.upv.rosiebelt.safefit.HomeActivity;
 import com.upv.rosiebelt.safefit.R;
+import com.upv.rosiebelt.safefit.utility.BackgroundDetectedActivitiesService;
+import com.upv.rosiebelt.safefit.utility.Constants;
 
 
 /**
@@ -35,9 +45,12 @@ public class HomeFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    View rootView;
+
     private OnFragmentInteractionListener mListener;
 
     private DrawerLayout drawerLayout;
+
 
     public HomeFragment() {
         // Required empty public constructor
@@ -77,7 +90,7 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
-        View rootView =  inflater.inflate(R.layout.fragment_home, container, false);
+        rootView =  inflater.inflate(R.layout.fragment_home, container, false);
         Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.home_fragment_toolbar);
         ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
         drawerLayout = ((HomeActivity)getActivity()).drawerLayout;
@@ -86,6 +99,13 @@ public class HomeFragment extends Fragment {
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
         setHasOptionsMenu(true);
 
+        TextView mode_text = (TextView) rootView.findViewById(R.id.mode_text);
+        TextView text_confidence = (TextView) rootView.findViewById(R.id.confidence);
+        ImageView imageView = (ImageView) rootView.findViewById(R.id.mode_image);
+
+        mode_text.setText(((HomeActivity) getActivity()).currentModetext);
+        imageView.setImageResource(((HomeActivity) getActivity()).currentIcon);
+        text_confidence.setText(((HomeActivity) getActivity()).currentConfidence);
         return rootView;
     }
 
@@ -126,4 +146,8 @@ public class HomeFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+
+
+
 }

@@ -11,5 +11,18 @@
     <string name="title_directions">Directions</string>
     <string name="title_home">Home</string>
 
+
+    <string name="vehicle_activity">Vehicle</string>
+    <string name="bicycle_activity">Bicycle</string>
+    <string name="onfoot_activity">On Fooot</string>
+    <string name="running_activity">Running</string>
+    <string name="no_movement">Idle</string>
+    <string name="other_activity">Other</string>
+
+    <string name="home_summar_title">Daily Activity Summary</string>
+    <string name="home_mode">Mode</string>
+    <string name="daily_steps">Daily Steps</string>
+
+    <string name="loading">Loading</string>
     <string name="temporary_string">This is temporary ui for data gathering</string>
 </resources>

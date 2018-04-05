@@ -15,9 +15,9 @@ public class DBUser{
     public static final String DATABASE_NAME = "safefile.db";
     public static final int DATABASE_VERSION = 1;
 
-    private static final String SQL_CREATE_ENTRIES = "CREATE TABLE " +UserEntry.TABLE_NAME+ " (" + UserEntry._ID + " INTEGER PRIMARY KEY, "
-            + UserEntry.COLUMN_NAME_FULLNAME + " TEXT," + UserEntry.COLUMN_NAME_EMAIL + " TEXT)";
-    private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " +  UserEntry.TABLE_NAME;
+    public static final String SQL_CREATE_ENTRIES = "CREATE TABLE " +UserEntry.TABLE_NAME+ " (" + UserEntry._ID + " INTEGER PRIMARY KEY, "
+            + UserEntry.COLUMN_NAME_FULLNAME + " TEXT," + UserEntry.COLUMN_NAME_EMAIL +" TEXT,"+ UserEntry.COLUMN_NAME_SEX + " TEXT)";
+    public static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " +  UserEntry.TABLE_NAME;
 
     public UserDbHelper userdbhelper;
     public DBUser(Context context){
@@ -28,56 +28,43 @@ public class DBUser{
         public static final String TABLE_NAME = "user_table";
         public static final String COLUMN_NAME_FULLNAME = "fullname";
         public static final String COLUMN_NAME_EMAIL = "email";
+        public static final String COLUMN_NAME_SEX = "sex";
     }
 
-    public boolean exist(){
+    public int exist(){
         SQLiteDatabase db = userdbhelper.getReadableDatabase();
         Cursor cursor = db.query(UserEntry.TABLE_NAME, null, null, null, null, null, null);
         if(cursor.getCount() == 0){
             cursor.close();
-            return false;
+            return -1;
         }
+        cursor.moveToFirst();
+        int id = cursor.getInt(cursor.getColumnIndex(UserEntry._ID));
         cursor.close();
-        return true;
+        return id;
     }
 
-    public void setUser(String name){
+    public long setUser(String name){
         SQLiteDatabase db = userdbhelper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(UserEntry.COLUMN_NAME_FULLNAME, name);
         long newRowID = db.insert(UserEntry.TABLE_NAME,null, contentValues);
+        return newRowID;
+
     }
 
-    public void setEmail(String email){
+    public void setData(String column, String data, int id){
         SQLiteDatabase db = userdbhelper.getWritableDatabase();
-
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(column, data);
+        long newRowID = db.update(UserEntry.TABLE_NAME, contentValues, "_id="+id, null);
     }
-    public String[] getData(String[] projection){
-        String[] result = {};
+
+    public Cursor getData(String[] projection){
         SQLiteDatabase db = userdbhelper.getReadableDatabase();
         Cursor cursor = db.query(UserEntry.TABLE_NAME, projection, null, null, null, null, null);
-        cursor.close();
-        return result;
-    }
-
-    public String getEmail(){
-        SQLiteDatabase db = userdbhelper.getReadableDatabase();
-        Cursor cursor = db.query(UserEntry.TABLE_NAME,new String[]{UserEntry.COLUMN_NAME_EMAIL}, null, null, null, null, null);
         cursor.moveToFirst();
-        String email = cursor.getString(cursor.getColumnIndex(UserEntry.COLUMN_NAME_EMAIL));
-        cursor.close();
-        if(email == null){
-            return "";
-        }
-        return email;
-    }
-    public String getUser(){
-        SQLiteDatabase db = userdbhelper.getReadableDatabase();
-        Cursor cursor = db.query(UserEntry.TABLE_NAME,new String[]{UserEntry.COLUMN_NAME_FULLNAME}, null, null, null, null, null);
-        cursor.moveToFirst();
-        String user = cursor.getString(cursor.getColumnIndex(UserEntry.COLUMN_NAME_FULLNAME));
-        cursor.close();
-        return user;
+        return cursor;
     }
 
     public class UserDbHelper extends SQLiteOpenHelper{

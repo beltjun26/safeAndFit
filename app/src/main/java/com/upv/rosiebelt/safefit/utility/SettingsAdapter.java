@@ -1,13 +1,12 @@
-package com.upv.rosiebelt.safefit;
+package com.upv.rosiebelt.safefit.utility;
 
-import android.provider.Settings;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
+import com.upv.rosiebelt.safefit.R;
 
 /**
  * Created by Rosiebelt on 12/03/2018.

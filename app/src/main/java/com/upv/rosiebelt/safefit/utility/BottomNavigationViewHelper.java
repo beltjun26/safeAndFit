@@ -1,4 +1,4 @@
-package com.upv.rosiebelt.safefit;
+package com.upv.rosiebelt.safefit.utility;
 
 import android.annotation.SuppressLint;
 import android.support.design.internal.BottomNavigationItemView;

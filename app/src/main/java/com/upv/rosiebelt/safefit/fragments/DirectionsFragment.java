@@ -1,13 +1,21 @@
 package com.upv.rosiebelt.safefit.fragments;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -16,7 +24,9 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.upv.rosiebelt.safefit.HomeActivity;
 import com.upv.rosiebelt.safefit.R;
+import com.upv.rosiebelt.safefit.utility.LocationTracker;
 
 
 /**
@@ -28,20 +38,35 @@ import com.upv.rosiebelt.safefit.R;
  * create an instance of this fragment.
  */
 public class DirectionsFragment extends Fragment implements OnMapReadyCallback{
+
+//    customed variable
+    private GoogleApiClient mGoogleApiClient;
     GoogleMap mGoogleMap;
+    LocationManager locationManager;
     MapView mMapView;
     View mView;
+    LocationTracker tracker;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
+//    paremeter for saving activty instace
+    private static final String KEY_CAMERA_POSITION = "camera_position";
+    private static final String KEY_LOCATION = "location";
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        tracker.stopUsingLocation();
+    }
 
     public DirectionsFragment() {
         // Required empty public constructor
@@ -66,6 +91,16 @@ public class DirectionsFragment extends Fragment implements OnMapReadyCallback{
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+//        if(mGoogleMap != null){
+//            outState.putParcelable(KEY_CAMERA_POSITION, mGoogleMap.getCameraPosition());
+//            outState.putParcelable(KEY_LOCATION, mLastKnownLocation);
+//            super.onSaveInstanceState(outState);
+//        }
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
@@ -78,12 +113,26 @@ public class DirectionsFragment extends Fragment implements OnMapReadyCallback{
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mMapView = (MapView) mView.findViewById(R.id.direction_map);
-        if (mMapView != null){
-            mMapView.onCreate(null);
-            mMapView.onResume();
-            mMapView.getMapAsync(this);
+
+        tracker = new LocationTracker(getActivity());
+        if(tracker.isLocationEnabled()){
+            mMapView = (MapView) mView.findViewById(R.id.direction_map);
+            if (mMapView != null){
+                mMapView.onCreate(null);
+                mMapView.onResume();
+                mMapView.getMapAsync(this);
+            }
         }
+        else{
+            tracker.askToOnLocation();
+        }
+
+    }
+
+    @Override
+    public void onPause() {
+//        tracker.stopUsingLocation();
+        super.onPause();
     }
 
     @Override
@@ -107,17 +156,23 @@ public class DirectionsFragment extends Fragment implements OnMapReadyCallback{
     public void onDetach() {
         super.onDetach();
         mListener = null;
+
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
         MapsInitializer.initialize(getContext());
         mGoogleMap = googleMap;
+        mGoogleMap.setMyLocationEnabled(true);
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        googleMap.addMarker(new MarkerOptions().position(new LatLng(40.689247, -74.044502)).title("Statue of Liberty").snippet("I will go here"));
 
-        CameraPosition Liberty = CameraPosition.builder().target(new LatLng(40.689247, -74.044502)).zoom(16).bearing(0).tilt(45).build();
-        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
+//        googleMap.addMarker(new MarkerOptions().position(new LatLng(40.689247, -74.044502)).title("Statue of Liberty").snippet("I will go here"));
+//
+//        View locationButton = ((View) getActivity().findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
+//        locationButton.performClick();
+        CameraPosition myself = CameraPosition.builder().target(new LatLng(tracker.getLatitude(), tracker.getLongtitude())).zoom(16).bearing(0).tilt(45).build();
+        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(myself));
     }
 
     /**
