@@ -12,16 +12,14 @@ import android.provider.BaseColumns;
  */
 
 public class DBUser{
-    public static final String DATABASE_NAME = "safefile.db";
-    public static final int DATABASE_VERSION = 1;
 
     public static final String SQL_CREATE_ENTRIES = "CREATE TABLE " +UserEntry.TABLE_NAME+ " (" + UserEntry._ID + " INTEGER PRIMARY KEY, "
             + UserEntry.COLUMN_NAME_FULLNAME + " TEXT," + UserEntry.COLUMN_NAME_EMAIL +" TEXT,"+ UserEntry.COLUMN_NAME_SEX + " TEXT)";
     public static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " +  UserEntry.TABLE_NAME;
 
-    public UserDbHelper userdbhelper;
+    public DBManager userdbhelper;
     public DBUser(Context context){
-        userdbhelper = new UserDbHelper(context);
+        userdbhelper = new DBManager(context);
     }
 
     public static class UserEntry implements BaseColumns {
@@ -65,28 +63,6 @@ public class DBUser{
         Cursor cursor = db.query(UserEntry.TABLE_NAME, projection, null, null, null, null, null);
         cursor.moveToFirst();
         return cursor;
-    }
-
-    public class UserDbHelper extends SQLiteOpenHelper{
-
-        public UserDbHelper(Context context){
-            super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        }
-        @Override
-        public void onCreate(SQLiteDatabase sqLiteDatabase) {
-            sqLiteDatabase.execSQL(SQL_CREATE_ENTRIES);
-        }
-
-        @Override
-        public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-            sqLiteDatabase.execSQL(SQL_DELETE_ENTRIES);
-            onCreate(sqLiteDatabase);
-        }
-
-        @Override
-        public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            onUpgrade(db, oldVersion, newVersion);
-        }
     }
 
 

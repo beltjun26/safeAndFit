@@ -20,6 +20,14 @@ public class DBManager extends SQLiteOpenHelper{
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+        sqLiteDatabase.execSQL(DBMedicalRecord.SQL_DELETE_ENTRIES);
+        sqLiteDatabase.execSQL(DBUser.SQL_DELETE_ENTRIES);
+        sqLiteDatabase.execSQL(DBActivities.SQL_DELETE_ENTRIES);
+        onCreate(sqLiteDatabase);
+    }
 
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        onUpgrade(db, oldVersion, newVersion);
     }
 }

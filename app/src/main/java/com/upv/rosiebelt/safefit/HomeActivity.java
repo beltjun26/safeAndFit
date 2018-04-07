@@ -1,11 +1,14 @@
 package com.upv.rosiebelt.safefit;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -42,7 +45,21 @@ public class HomeActivity extends AppCompatActivity
     public String currentModetext = "Loading";
     public String currentConfidence = "Loading";
     public int currentIcon = R.drawable.icon_still;
+    private  BackgroundDetectedActivitiesService backgroundDetectedActivitiesService;
+    private boolean mBound;
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            BackgroundDetectedActivitiesService.LocalBinder binder  = (BackgroundDetectedActivitiesService.LocalBinder) iBinder;
+            backgroundDetectedActivitiesService = binder.getServiceInstant();
+            mBound = true;
+        }
 
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            mBound = false;
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -174,22 +191,28 @@ public class HomeActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unbindService(mConnection);
         stopTracking();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        if(mBound){
+            handleUserActivity(backgroundDetectedActivitiesService.getRecentActivity(), backgroundDetectedActivitiesService.getRecentConfidence());
+        }
         Cursor cursor = dbuser.getData(new String[]{DBUser.UserEntry.COLUMN_NAME_SEX, DBUser.UserEntry.COLUMN_NAME_FULLNAME, DBUser.UserEntry.COLUMN_NAME_EMAIL});
         ((TextView)navigationView.getHeaderView(0).findViewById(R.id.header_fullname)).setText(cursor.getString(cursor.getColumnIndex(DBUser.UserEntry.COLUMN_NAME_FULLNAME)));
         ((TextView)navigationView.getHeaderView(0).findViewById(R.id.header_email)).setText(cursor.getString(cursor.getColumnIndex(DBUser.UserEntry.COLUMN_NAME_EMAIL)));
         LocalBroadcastManager.getInstance(HomeActivity.this).registerReceiver(broadcastReceiver, new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY));
+
 
     }
 
     public void startTracking(){
         Intent intent = new Intent(HomeActivity.this, BackgroundDetectedActivitiesService.class);
         startService(intent);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     public void stopTracking(){

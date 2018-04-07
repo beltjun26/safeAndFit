@@ -12,18 +12,15 @@ import android.provider.BaseColumns;
  */
 
 public class DBMedicalRecord {
-    public static final String DATABASE_NAME = "safefile.db";
-    public static final int DATABASE_VERSION = 1;
-
     public static final String SQL_CREATE_ENTRIES = "CREATE TABLE IF NOT EXISTS " +MdRecordEntry.TABLE_NAME+ " (" + MdRecordEntry._ID + " INTEGER PRIMARY KEY, "
             + MdRecordEntry.COLUMN_LABEL + " TEXT,"
             + MdRecordEntry.COLUMN_CONTENT + " TEXT)";
     public static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " +  MdRecordEntry.TABLE_NAME;
 
-    public MdRecordDBHelper mdRecordDBHelper;
+    public DBManager mdRecordDBHelper;
 
     public DBMedicalRecord(Context context) {
-        mdRecordDBHelper = new MdRecordDBHelper(context);
+        mdRecordDBHelper = new DBManager(context);
     }
 
     public static class MdRecordEntry implements BaseColumns{
@@ -34,28 +31,6 @@ public class DBMedicalRecord {
     }
 
 
-    public class MdRecordDBHelper extends SQLiteOpenHelper{
-
-        public MdRecordDBHelper(Context context){
-            super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        }
-
-        @Override
-        public void onCreate(SQLiteDatabase sqLiteDatabase) {
-            sqLiteDatabase.execSQL(SQL_CREATE_ENTRIES);
-        }
-
-        @Override
-        public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-            sqLiteDatabase.execSQL(SQL_DELETE_ENTRIES);
-            onCreate(sqLiteDatabase);
-        }
-
-        @Override
-        public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            onUpgrade(db, oldVersion, newVersion);
-        }
-    }
     public void setData(String column, String data, int id){
         SQLiteDatabase db = mdRecordDBHelper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -74,7 +49,6 @@ public class DBMedicalRecord {
     public Cursor getData(String[] projection){
         SQLiteDatabase db = mdRecordDBHelper.getReadableDatabase();
         Cursor cursor = db.query(MdRecordEntry.TABLE_NAME, projection,null, null, null, null, null);
-        cursor.moveToFirst();
         return cursor;
     }
 

@@ -7,6 +7,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.location.ActivityRecognition;
@@ -26,6 +27,8 @@ public class BackgroundDetectedActivitiesService extends Service{
     private Intent intentService;
     private PendingIntent pendingIntent;
     private ActivityRecognitionClient activityRecognitionClient;
+    public int recentActivity = 0, recentConfidence = 0;
+    public String startTime;
 
     IBinder iBinder = new BackgroundDetectedActivitiesService.LocalBinder();
 
@@ -95,5 +98,27 @@ public class BackgroundDetectedActivitiesService extends Service{
     public void onDestroy() {
         super.onDestroy();
         removeActivityUpdatesButtonHandler();
+    }
+
+    public void setRecentActivity(int recentActivity){
+        this.recentActivity = recentActivity;
+    }
+    public int getRecentActivity(){
+        return this.recentActivity;
+    }
+
+    public void setStartTime(String startTime){
+        this.startTime = startTime;
+    }
+
+    public String getStartTime(){
+        return startTime;
+    }
+
+    public void setRecentConfidence(int confidence){
+        this.recentConfidence = confidence;
+    }
+    public int getRecentConfidence(){
+        return recentConfidence;
     }
 }

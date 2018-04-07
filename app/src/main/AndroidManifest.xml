@@ -25,6 +25,7 @@
         </activity>
         <activity
             android:name=".HomeActivity"
+            android:label="Safe And Fit"
             android:theme="@style/AppTheme.NoActionBar" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
