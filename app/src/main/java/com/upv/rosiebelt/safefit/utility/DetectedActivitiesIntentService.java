@@ -5,6 +5,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.provider.SyncStateContract;
 import android.support.annotation.Nullable;
@@ -26,11 +30,13 @@ import java.util.Locale;
  * Created by root on 3/26/18.
  */
 
-public class DetectedActivitiesIntentService extends IntentService {
+public class DetectedActivitiesIntentService extends IntentService{
+
     DBActivities dbActivities;
     int recentActivity = 0;
-    int recentConfidence = 0;
+    private int recentConfidence = 0;
     boolean mBound;
+
     BackgroundDetectedActivitiesService backgroundDetectedActivitiesService;
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -107,6 +113,7 @@ public class DetectedActivitiesIntentService extends IntentService {
     public void onDestroy() {
         super.onDestroy();
         unbindService(mConnection);
+
     }
 
     @Override
@@ -116,6 +123,7 @@ public class DetectedActivitiesIntentService extends IntentService {
         dbActivities = new DBActivities(DetectedActivitiesIntentService.this);
         Intent intent = new Intent(DetectedActivitiesIntentService.this, BackgroundDetectedActivitiesService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+
     }
 
     String activityToString(int activityInt){

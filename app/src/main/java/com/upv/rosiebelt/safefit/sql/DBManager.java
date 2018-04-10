@@ -16,6 +16,7 @@ public class DBManager extends SQLiteOpenHelper{
         sqLiteDatabase.execSQL(DBMedicalRecord.SQL_CREATE_ENTRIES);
         sqLiteDatabase.execSQL(DBUser.SQL_CREATE_ENTRIES);
         sqLiteDatabase.execSQL(DBActivities.SQL_CREATE_ENTRIES);
+        sqLiteDatabase.execSQL(DBSteps.SQL_CREATE_ENTRIES);
     }
 
     @Override
@@ -23,6 +24,7 @@ public class DBManager extends SQLiteOpenHelper{
         sqLiteDatabase.execSQL(DBMedicalRecord.SQL_DELETE_ENTRIES);
         sqLiteDatabase.execSQL(DBUser.SQL_DELETE_ENTRIES);
         sqLiteDatabase.execSQL(DBActivities.SQL_DELETE_ENTRIES);
+        sqLiteDatabase.execSQL(DBSteps.SQL_DELETE_ENTRIES);
         onCreate(sqLiteDatabase);
     }
 

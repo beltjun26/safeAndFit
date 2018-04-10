@@ -102,7 +102,10 @@ public class HomeFragment extends Fragment {
         TextView mode_text = (TextView) rootView.findViewById(R.id.mode_text);
         TextView text_confidence = (TextView) rootView.findViewById(R.id.confidence);
         ImageView imageView = (ImageView) rootView.findViewById(R.id.mode_image);
-
+        TextView noSteps = (TextView) rootView.findViewById(R.id.no_steps);
+        if(((HomeActivity)getActivity()).getbackgroundService() != null){
+            noSteps.setText(Integer.toString(((HomeActivity)getActivity()).getbackgroundService().getSteps()));
+        }
         mode_text.setText(((HomeActivity) getActivity()).currentModetext);
         imageView.setImageResource(((HomeActivity) getActivity()).currentIcon);
         text_confidence.setText(((HomeActivity) getActivity()).currentConfidence);

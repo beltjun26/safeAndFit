@@ -29,10 +29,13 @@ import com.google.android.gms.location.DetectedActivity;
 import com.upv.rosiebelt.safefit.fragments.ActivityFragment;
 import com.upv.rosiebelt.safefit.fragments.DirectionsFragment;
 import com.upv.rosiebelt.safefit.fragments.HomeFragment;
+import com.upv.rosiebelt.safefit.fragments.StatisticsFragment;
 import com.upv.rosiebelt.safefit.sql.DBUser;
 import com.upv.rosiebelt.safefit.utility.BackgroundDetectedActivitiesService;
 import com.upv.rosiebelt.safefit.utility.BottomNavigationViewHelper;
 import com.upv.rosiebelt.safefit.utility.Constants;
+
+import org.w3c.dom.Text;
 
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -110,6 +113,9 @@ public class HomeActivity extends AppCompatActivity
                     transaction.commit();
                     return true;
                 case R.id.navigation_statistics:
+                    fragment = new StatisticsFragment();
+                    transaction.replace(R.id.home_frame, fragment);
+                    transaction.commit();
 //                    mTextMessage.setText(R.string.title_dashboard);
                     return true;
                 case R.id.navigation_directions:
@@ -268,6 +274,14 @@ public class HomeActivity extends AppCompatActivity
                 mode_text.setText(String.valueOf(currentModetext));
                 text_confidence.setText(currentConfidence);
             }
+        }
+
+    }
+    public BackgroundDetectedActivitiesService getbackgroundService(){
+        if(mBound){
+            return backgroundDetectedActivitiesService;
+        }else{
+            return null;
         }
     }
 

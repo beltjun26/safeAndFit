@@ -8,4 +8,8 @@
     <color name="backgroundColor">#ffffff</color>
     <color name="white">#ffffff</color>
     <color name="fab_background">#f7d600</color>
+    <color name="red_c">#ff4949</color>
+    <color name="green_c">#a1ff43</color>
+    <color name="blue_c">#4287ff</color>
+    <color name="yellow_c">#fff34b</color>
 </resources>

@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.arbelkilani.bicoloredprogress.BiColoredProgress;
 import com.upv.rosiebelt.safefit.R;
 
 
@@ -83,21 +84,21 @@ public class ActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_activity, container, false);
-        textview_x = (TextView)rootView.findViewById(R.id.textview_x);
-        textview_y = (TextView)rootView.findViewById(R.id.textview_y);
-        textview_z = (TextView)rootView.findViewById(R.id.textview_z);
+        BiColoredProgress progressRunning = rootView.findViewById(R.id.progress_running);
+        progressRunning.setProgress(87f);
+        progressRunning.setAnimated(true, 4000);
 
-        textgyro_x = (TextView) rootView.findViewById(R.id.textgyro_x);
-        textgyro_y = (TextView) rootView.findViewById(R.id.textgyro_y);
-        textgyro_z = (TextView) rootView.findViewById(R.id.textgyro_z);
+        BiColoredProgress progressWalking = rootView.findViewById(R.id.progress_walking);
+        progressWalking.setProgress(33f);
+        progressWalking.setAnimated(true, 4000);
 
-        Button button = (Button) rootView.findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                register();
-            }
-        });
+        BiColoredProgress progressBiking = rootView.findViewById(R.id.progress_biking);
+        progressBiking.setProgress(34f);
+        progressBiking.setAnimated(true, 4000);
+
+        BiColoredProgress progressVehicle = rootView.findViewById(R.id.progress_vehicle);
+        progressVehicle.setProgress(10f);
+        progressVehicle.setAnimated(true, 4000);
         return rootView;
     }
 

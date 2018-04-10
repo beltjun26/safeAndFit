@@ -3,6 +3,10 @@ package com.upv.rosiebelt.safefit.utility;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -21,14 +25,17 @@ import com.upv.rosiebelt.safefit.HomeActivity;
  * Created by root on 3/27/18.
  */
 
-public class BackgroundDetectedActivitiesService extends Service{
+public class BackgroundDetectedActivitiesService extends Service  implements SensorEventListener, StepListener{
     private final String TAG = BackgroundDetectedActivitiesService.class.getSimpleName();
 
     private Intent intentService;
     private PendingIntent pendingIntent;
     private ActivityRecognitionClient activityRecognitionClient;
-    public int recentActivity = 0, recentConfidence = 0;
+    public int recentActivity = 0, recentConfidence = 0, numSteps = 0;
     public String startTime;
+    StepDetector stepDetector;
+    SensorManager sensorManager;
+    Sensor accelometer;
 
     IBinder iBinder = new BackgroundDetectedActivitiesService.LocalBinder();
 
@@ -45,6 +52,16 @@ public class BackgroundDetectedActivitiesService extends Service{
         intentService = new Intent(this, DetectedActivitiesIntentService.class);
         pendingIntent = PendingIntent.getService(this, 1, intentService, PendingIntent.FLAG_UPDATE_CURRENT);
         requestActivityUpdatesButtonHandler();
+
+        //        creating instance of SensorManager
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        accelometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+
+        stepDetector = new StepDetector();
+        stepDetector.registerListener(this);
+
+        sensorManager.registerListener(BackgroundDetectedActivitiesService.this, accelometer, SensorManager.SENSOR_DELAY_FASTEST);
 
 
     }
@@ -98,8 +115,31 @@ public class BackgroundDetectedActivitiesService extends Service{
     public void onDestroy() {
         super.onDestroy();
         removeActivityUpdatesButtonHandler();
+        sensorManager.unregisterListener(BackgroundDetectedActivitiesService.this);
     }
 
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            stepDetector.updateAccel(
+                    sensorEvent.timestamp, sensorEvent.values[0], sensorEvent.values[1], sensorEvent.values[2]);
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
+    }
+
+    @Override
+    public void step(long timeNs) {
+        numSteps++;
+    }
+
+    public int getSteps(){
+        return numSteps;
+    }
     public void setRecentActivity(int recentActivity){
         this.recentActivity = recentActivity;
     }
