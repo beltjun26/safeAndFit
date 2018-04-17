@@ -6,6 +6,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+
 public class DBActivities {
     public DBManager activityDbHelper;
 
@@ -42,6 +47,60 @@ public class DBActivities {
         return cursor;
     }
 
+    public String dataWeek(){
+        SQLiteDatabase db = activityDbHelper.getReadableDatabase();
+        String[] projection = new String[]{ActivitiesEntry.COLUMN_ACTIVITY, ActivitiesEntry.COLUMN_TIME_START, ActivitiesEntry.COLUMN_TIME_END};
+        String selection = ActivitiesEntry.COLUMN_TIME_START + "> ? " + " AND " + ActivitiesEntry.COLUMN_TIME_START + "< ? ";
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "yyyy-MM-dd", Locale.getDefault());
+        Calendar date = Calendar.getInstance();
+        String dayOfWeek = date.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault());
+        String startDate, endDate;
+        int toAdd = 0;
+        if(dayOfWeek.equals("Monday")){
+            toAdd = -1;
+        }else if(dayOfWeek.equals("Tuesday")){
+            toAdd = -2;
+        }else if(dayOfWeek.equals("Wednesday")){
+            toAdd = -3;
+        }else if(dayOfWeek.equals("Thursday")){
+            toAdd = -4;
+        }else if(dayOfWeek.equals("Friday")){
+            toAdd = -5;
+        }else if(dayOfWeek.equals("Saturday")){
+            toAdd = -6;
+        }
+        date.add(Calendar.DATE, toAdd);
+        startDate = dateFormat.format(date.getTime());
+        date.add(Calendar.DATE, 7);
+        endDate = dateFormat.format(date.getTime());
+        String[] selectionArgs = new String[]{startDate, endDate};
+        Cursor cursor = db.query(ActivitiesEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, ActivitiesEntry.COLUMN_TIME_START + " ASC");
+
+        return Integer.toString(cursor.getCount());
+
+//        return cursor;
+
+    }
+
+    public Cursor dataToday(){
+        SQLiteDatabase db = activityDbHelper.getReadableDatabase();
+        String[] projection = new String[]{ActivitiesEntry.COLUMN_ACTIVITY, ActivitiesEntry.COLUMN_TIME_START, ActivitiesEntry.COLUMN_TIME_END};
+        String selection = ActivitiesEntry.COLUMN_TIME_START + "> ? " + " AND " + ActivitiesEntry.COLUMN_TIME_START + "< ? ";
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "yyyy-MM-dd", Locale.getDefault());
+        Calendar calendar = Calendar.getInstance();
+        String startDate = dateFormat.format(calendar.getTime());
+        calendar.add(Calendar.DATE, 1);
+        String endDate = dateFormat.format(calendar.getTime());
+
+        String[] selectionArgs = new String[]{startDate, endDate};
+        Cursor cursor = db.query(ActivitiesEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, ActivitiesEntry.COLUMN_TIME_START + " ASC");
+        return cursor;
+    }
+
     public void addData(String activity, String start, String end){
         SQLiteDatabase db = activityDbHelper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -49,6 +108,14 @@ public class DBActivities {
         contentValues.put(ActivitiesEntry.COLUMN_TIME_START, start);
         contentValues.put(ActivitiesEntry.COLUMN_TIME_END, end);
         long newRowID = db.insert(ActivitiesEntry.TABLE_NAME,null, contentValues);
+    }
+
+    // get current date
+    private String getDateTime() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "yyyy-MM-dd", Locale.getDefault());
+        Date date = new Date();
+        return dateFormat.format(date);
     }
 
 }

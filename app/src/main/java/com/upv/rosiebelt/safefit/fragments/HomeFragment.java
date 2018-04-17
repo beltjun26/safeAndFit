@@ -1,13 +1,8 @@
 package com.upv.rosiebelt.safefit.fragments;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -20,11 +15,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.location.DetectedActivity;
 import com.upv.rosiebelt.safefit.HomeActivity;
 import com.upv.rosiebelt.safefit.R;
-import com.upv.rosiebelt.safefit.utility.BackgroundDetectedActivitiesService;
-import com.upv.rosiebelt.safefit.utility.Constants;
+import com.upv.rosiebelt.safefit.utility.BackgroundListener;
+
+import antonkozyriatskyi.circularprogressindicator.CircularProgressIndicator;
 
 
 /**
@@ -35,7 +30,7 @@ import com.upv.rosiebelt.safefit.utility.Constants;
  * Use the {@link HomeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements BackgroundListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -46,8 +41,9 @@ public class HomeFragment extends Fragment {
     private String mParam2;
 
     View rootView;
-
+    CircularProgressIndicator circularProgressIndicator;
     private OnFragmentInteractionListener mListener;
+
 
     private DrawerLayout drawerLayout;
 
@@ -100,15 +96,26 @@ public class HomeFragment extends Fragment {
         setHasOptionsMenu(true);
 
         TextView mode_text = (TextView) rootView.findViewById(R.id.mode_text);
-        TextView text_confidence = (TextView) rootView.findViewById(R.id.confidence);
         ImageView imageView = (ImageView) rootView.findViewById(R.id.mode_image);
         TextView noSteps = (TextView) rootView.findViewById(R.id.no_steps);
+
         if(((HomeActivity)getActivity()).getbackgroundService() != null){
             noSteps.setText(Integer.toString(((HomeActivity)getActivity()).getbackgroundService().getSteps()));
+            ((HomeActivity) getActivity()).getbackgroundService().setBackgroundListener(this);
         }
+
         mode_text.setText(((HomeActivity) getActivity()).currentModetext);
         imageView.setImageResource(((HomeActivity) getActivity()).currentIcon);
-        text_confidence.setText(((HomeActivity) getActivity()).currentConfidence);
+
+
+//        setup circular progress indicator
+        circularProgressIndicator = (CircularProgressIndicator) rootView.findViewById(R.id.progress_indicator);
+        circularProgressIndicator.setMaxProgress(100);
+        circularProgressIndicator.setCurrentProgress(((HomeActivity)getActivity()).currentConfidence);
+
+
+
+
         return rootView;
     }
 
@@ -133,6 +140,7 @@ public class HomeFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        ((HomeActivity)getActivity()).getbackgroundService().removeBackgroundListener();
     }
 
     /**
@@ -150,7 +158,8 @@ public class HomeFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-
-
-
+    @Override
+    public void step(int noSteps) {
+        ((TextView)rootView.findViewById(R.id.no_steps)).setText(Integer.toString(noSteps));
+    }
 }

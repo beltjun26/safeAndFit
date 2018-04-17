@@ -19,12 +19,17 @@
     <string name="no_movement">Idle</string>
     <string name="other_activity">Other</string>
 
-    <string name="home_summar_title">Daily Activity Summary</string>
+    <string name="home_summary_title">Daily Activity Summary</string>
+    <string name="home_achievement_title">Daily Achievements</string>
     <string name="home_mode">Mode</string>
     <string name="daily_steps">Daily Steps</string>
+    <string name="daily_calories">Calories Burn</string>
 
     <string name="loading">Loading</string>
     <string name="temporary_string">This is temporary ui for data gathering</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
 </resources>

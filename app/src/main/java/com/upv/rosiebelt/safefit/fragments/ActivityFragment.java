@@ -1,6 +1,7 @@
 package com.upv.rosiebelt.safefit.fragments;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -11,11 +12,16 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.arbelkilani.bicoloredprogress.BiColoredProgress;
 import com.upv.rosiebelt.safefit.R;
+import com.upv.rosiebelt.safefit.sql.DBActivities;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
 
 
 /**
@@ -36,6 +42,8 @@ public class ActivityFragment extends Fragment {
     private double px, py, pz;
     private double gx, gy, gz;
 
+//    variables
+    DBActivities dbActivities;
     private boolean finishThread = false;
 
     private TextView textview_x, textview_y, textview_z;
@@ -84,6 +92,27 @@ public class ActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_activity, container, false);
+
+        dbActivities = new DBActivities(getActivity());
+        Cursor todayActivity = dbActivities.dataToday();
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        String start, end;
+        Calendar calendarStart = Calendar.getInstance();
+        Calendar calendarEnd = Calendar.getInstance();
+        while(todayActivity.moveToNext()){
+            end = todayActivity.getString(todayActivity.getColumnIndex(DBActivities.ActivitiesEntry.COLUMN_TIME_END));
+            start = todayActivity.getString(todayActivity.getColumnIndex(DBActivities.ActivitiesEntry.COLUMN_TIME_START));
+            try{
+                calendarEnd.setTime(dateFormat.parse(end));
+                calendarStart.setTime(dateFormat.parse(start));
+
+            }catch (Exception e){
+                Toast.makeText(getActivity(), "Error in Parsing Date", Toast.LENGTH_SHORT).show();
+            }
+
+        }
+
         BiColoredProgress progressRunning = rootView.findViewById(R.id.progress_running);
         progressRunning.setProgress(87f);
         progressRunning.setAnimated(true, 4000);
@@ -99,6 +128,8 @@ public class ActivityFragment extends Fragment {
         BiColoredProgress progressVehicle = rootView.findViewById(R.id.progress_vehicle);
         progressVehicle.setProgress(10f);
         progressVehicle.setAnimated(true, 4000);
+
+
         return rootView;
     }
 
@@ -169,5 +200,5 @@ public class ActivityFragment extends Fragment {
 
     };
 
-//    end testing section code
+
 }

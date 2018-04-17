@@ -2,38 +2,41 @@ package com.upv.rosiebelt.safefit.fragments;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
 import com.upv.rosiebelt.safefit.R;
-import com.upv.rosiebelt.safefit.StatisticsFragmentAdapter;
+
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link StatisticsFragment.OnFragmentInteractionListener} interface
+ * {@link StatisticsWeek.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link StatisticsFragment#newInstance} factory method to
+ * Use the {@link StatisticsWeek#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class StatisticsFragment extends Fragment{
+public class StatisticsWeek extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
     View rootView;
+    BarChart barChart;
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
 
-    public StatisticsFragment() {
+    public StatisticsWeek() {
         // Required empty public constructor
     }
 
@@ -43,11 +46,11 @@ public class StatisticsFragment extends Fragment{
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment StatisticsFragment.
+     * @return A new instance of fragment StatisticsWeek.
      */
     // TODO: Rename and change types and number of parameters
-    public static StatisticsFragment newInstance(String param1, String param2) {
-        StatisticsFragment fragment = new StatisticsFragment();
+    public static StatisticsWeek newInstance(String param1, String param2) {
+        StatisticsWeek fragment = new StatisticsWeek();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -56,15 +59,48 @@ public class StatisticsFragment extends Fragment{
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mParam1 = getArguments().getString(ARG_PARAM1);
+            mParam2 = getArguments().getString(ARG_PARAM2);
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        rootView =  inflater.inflate(R.layout.fragment_statistics, container, false);
-        ViewPager viewPager = rootView.findViewById(R.id.viewpager);
-        StatisticsFragmentAdapter adapter = new StatisticsFragmentAdapter(getActivity(), getChildFragmentManager());
-        viewPager.setAdapter(adapter);
-        TabLayout tabLayout = (TabLayout) rootView.findViewById(R.id.tablayout);
-        tabLayout.setupWithViewPager(viewPager);
+
+        rootView =  inflater.inflate(R.layout.fragment_statistics_week, container, false);
+        barChart = (BarChart) rootView.findViewById(R.id.line_chart);
+        ArrayList<BarEntry> entries = new ArrayList<BarEntry>();
+        entries.add(new BarEntry(1f, 22f));
+        entries.add(new BarEntry(2f, 12f));
+        entries.add(new BarEntry(3f, 11f));
+        entries.add(new BarEntry(4f, 2f));
+        entries.add(new BarEntry(5f, 55f));
+        entries.add(new BarEntry(6f, 13f));
+        entries.add(new BarEntry(7f, 12f));
+
+        BarDataSet dataset = new BarDataSet(entries, "# of steps");
+
+        ArrayList<String> labels = new ArrayList<>();
+        labels.add("Jan");
+        labels.add("Feb");
+        labels.add("Mar");
+        labels.add("Apr");
+        labels.add("May");
+        labels.add("Jun");
+
+        BarData barData = new BarData(dataset);
+        barChart.setData(barData);
+        barChart.getAxisLeft().setDrawGridLines(false);
+        barChart.getAxisRight().setDrawGridLines(false);
+        barChart.getXAxis().setDrawGridLines(false);
+        barChart.invalidate();
+
+
         return rootView;
     }
 
@@ -74,8 +110,6 @@ public class StatisticsFragment extends Fragment{
             mListener.onFragmentInteraction(uri);
         }
     }
-
-
 
     @Override
     public void onDetach() {

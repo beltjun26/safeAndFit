@@ -9,9 +9,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Binder;
 import android.os.IBinder;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.location.ActivityRecognition;
@@ -19,7 +17,7 @@ import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.upv.rosiebelt.safefit.HomeActivity;
+import com.upv.rosiebelt.safefit.sql.DBSteps;
 
 /**
  * Created by root on 3/27/18.
@@ -32,10 +30,13 @@ public class BackgroundDetectedActivitiesService extends Service  implements Sen
     private PendingIntent pendingIntent;
     private ActivityRecognitionClient activityRecognitionClient;
     public int recentActivity = 0, recentConfidence = 0, numSteps = 0;
+    private BackgroundListener backgroundListener;
+    private boolean listening = false;
     public String startTime;
     StepDetector stepDetector;
     SensorManager sensorManager;
     Sensor accelometer;
+    DBSteps dbSteps;
 
     IBinder iBinder = new BackgroundDetectedActivitiesService.LocalBinder();
 
@@ -53,7 +54,11 @@ public class BackgroundDetectedActivitiesService extends Service  implements Sen
         pendingIntent = PendingIntent.getService(this, 1, intentService, PendingIntent.FLAG_UPDATE_CURRENT);
         requestActivityUpdatesButtonHandler();
 
-        //        creating instance of SensorManager
+//    create dbSteps for database management
+
+        dbSteps = new DBSteps(BackgroundDetectedActivitiesService.this);
+
+        //        creating instance of SensorManagerdbActivities
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
@@ -63,7 +68,8 @@ public class BackgroundDetectedActivitiesService extends Service  implements Sen
 
         sensorManager.registerListener(BackgroundDetectedActivitiesService.this, accelometer, SensorManager.SENSOR_DELAY_FASTEST);
 
-
+//        check for the current day number of steps
+        numSteps = dbSteps.getSteps();
     }
     @Override
     public IBinder onBind(Intent intent) {
@@ -116,8 +122,8 @@ public class BackgroundDetectedActivitiesService extends Service  implements Sen
         super.onDestroy();
         removeActivityUpdatesButtonHandler();
         sensorManager.unregisterListener(BackgroundDetectedActivitiesService.this);
+        dbSteps.setSteps(numSteps);
     }
-
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
@@ -132,11 +138,23 @@ public class BackgroundDetectedActivitiesService extends Service  implements Sen
 
     }
 
+    public void setBackgroundListener(BackgroundListener listener){
+        this.backgroundListener = listener;
+        listening = true;
+    }
+
+    public void removeBackgroundListener(){
+        this.backgroundListener = null;
+        listening = false;
+    }
+
     @Override
     public void step(long timeNs) {
         numSteps++;
+        if(listening){
+            backgroundListener.step(numSteps);
+        }
     }
-
     public int getSteps(){
         return numSteps;
     }

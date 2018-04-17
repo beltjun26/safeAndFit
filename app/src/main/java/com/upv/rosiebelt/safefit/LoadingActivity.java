@@ -6,16 +6,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.upv.rosiebelt.safefit.sql.DBUser;
 
@@ -57,7 +56,7 @@ public class LoadingActivity extends AppCompatActivity {
                             mProgressBar.setProgress(20);
                             while(progressStatus < 100){
                                 progressStatus++;
-                                android.os.SystemClock.sleep(50);
+                                android.os.SystemClock.sleep(10);
                                 mHandler.post(new Runnable() {
                                     @Override
                                     public void run() {
@@ -89,7 +88,7 @@ public class LoadingActivity extends AppCompatActivity {
                     mProgressBar.setProgress(20);
                     while(progressStatus < 100){
                         progressStatus++;
-                        android.os.SystemClock.sleep(50);
+                        android.os.SystemClock.sleep(10);
                         mHandler.post(new Runnable() {
                             @Override
                             public void run() {

@@ -11,9 +11,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.design.widget.NavigationView;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -23,7 +23,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.location.DetectedActivity;
 import com.upv.rosiebelt.safefit.fragments.ActivityFragment;
@@ -35,7 +34,7 @@ import com.upv.rosiebelt.safefit.utility.BackgroundDetectedActivitiesService;
 import com.upv.rosiebelt.safefit.utility.BottomNavigationViewHelper;
 import com.upv.rosiebelt.safefit.utility.Constants;
 
-import org.w3c.dom.Text;
+import antonkozyriatskyi.circularprogressindicator.CircularProgressIndicator;
 
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -46,7 +45,7 @@ public class HomeActivity extends AppCompatActivity
     DBUser dbuser;
     public DrawerLayout drawerLayout;
     public String currentModetext = "Loading";
-    public String currentConfidence = "Loading";
+    public int currentConfidence = 0;
     public int currentIcon = R.drawable.icon_still;
     private  BackgroundDetectedActivitiesService backgroundDetectedActivitiesService;
     private boolean mBound;
@@ -67,8 +66,9 @@ public class HomeActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        startTracking();
 
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         dbuser = new DBUser(HomeActivity.this);
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -97,7 +97,6 @@ public class HomeActivity extends AppCompatActivity
                 }
             }
         };
-        startTracking();
     }
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new android.support.design.widget.BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -230,7 +229,7 @@ public class HomeActivity extends AppCompatActivity
         if(homefragment !=null && homefragment.getView() != null){
             TextView mode_text = (TextView) findViewById(R.id.mode_text);
             String label = mode_text.getText().toString();
-            TextView text_confidence = (TextView) findViewById(R.id.confidence);
+            CircularProgressIndicator confidenceProg = (CircularProgressIndicator) findViewById(R.id.progress_indicator);
             ImageView imageView = (ImageView) findViewById(R.id.mode_image);
             int icon =R.drawable.unknown;
             switch (type) {
@@ -268,11 +267,11 @@ public class HomeActivity extends AppCompatActivity
             }
             if (confidence > Constants.CONFIDENCE) {
                 currentIcon = icon;
-                currentConfidence = confidence+"%";
+                currentConfidence = confidence;
                 currentModetext = label;
+                confidenceProg.setCurrentProgress(confidence-70);
                 imageView.setImageResource(currentIcon);
                 mode_text.setText(String.valueOf(currentModetext));
-                text_confidence.setText(currentConfidence);
             }
         }
 
