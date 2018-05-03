@@ -7,8 +7,10 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
+import android.opengl.Matrix;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,9 +21,12 @@ import com.arbelkilani.bicoloredprogress.BiColoredProgress;
 import com.upv.rosiebelt.safefit.R;
 import com.upv.rosiebelt.safefit.sql.DBActivities;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 
 /**
@@ -42,12 +47,13 @@ public class ActivityFragment extends Fragment {
     private double px, py, pz;
     private double gx, gy, gz;
 
+    private float[] gravityData = null, magneticData = null;
+
 //    variables
     DBActivities dbActivities;
     private boolean finishThread = false;
 
-    private TextView textview_x, textview_y, textview_z;
-    private TextView textgyro_x, textgyro_y, textgyro_z;
+    private TextView data_x, data_y, data_z;
 //     end testing section
 
     // TODO: Rename and change types of parameters
@@ -90,45 +96,90 @@ public class ActivityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+//         Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_activity, container, false);
 
+//        attach view items data's to the variables
+        data_x = rootView.findViewById(R.id.data_x);
+        data_y = rootView.findViewById(R.id.data_y);
+        data_z = rootView.findViewById(R.id.data_z);
+        register();
         dbActivities = new DBActivities(getActivity());
-        Cursor todayActivity = dbActivities.dataToday();
-        SimpleDateFormat dateFormat = new SimpleDateFormat(
-                "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        String start, end;
-        Calendar calendarStart = Calendar.getInstance();
-        Calendar calendarEnd = Calendar.getInstance();
-        while(todayActivity.moveToNext()){
-            end = todayActivity.getString(todayActivity.getColumnIndex(DBActivities.ActivitiesEntry.COLUMN_TIME_END));
-            start = todayActivity.getString(todayActivity.getColumnIndex(DBActivities.ActivitiesEntry.COLUMN_TIME_START));
-            try{
-                calendarEnd.setTime(dateFormat.parse(end));
-                calendarStart.setTime(dateFormat.parse(start));
-
-            }catch (Exception e){
-                Toast.makeText(getActivity(), "Error in Parsing Date", Toast.LENGTH_SHORT).show();
+        long[] activityLength = dbActivities.getTodayActivityTime();
+        String[] activityTime = new String[5];
+        long total = 0;
+        if(activityLength != null){
+//            calculate each activity actual time
+            for(int i=0;i<5;i++){
+                total = total + activityLength[i];
+                String timeUnit = "seconds";
+                activityTime[i] = "";
+                int time = (int)(activityLength[i] / 1000);
+                int tempTime = time/60;
+                if(tempTime > 0){
+                    activityTime[i] = activityTime[i] + time%60 + " seconds";
+                    time = tempTime;
+                    if(time == 1){
+                        timeUnit = "minute";
+                    }else{
+                        timeUnit = "minutes";
+                    }
+                    tempTime = time / 60;
+                    if(tempTime > 0){
+                        activityTime[i] = time%60 + " " + timeUnit;
+                        time = tempTime;
+                        if(time == 1){
+                            timeUnit = "hour";
+                        }else{
+                            timeUnit = "hours";
+                        }
+                    }
+                }
+                activityTime[i] = time + " " + timeUnit + " " +activityTime[i];
             }
 
+        }else {
+            total = 1;
+            activityLength = new long[5];
         }
 
-        BiColoredProgress progressRunning = rootView.findViewById(R.id.progress_running);
-        progressRunning.setProgress(87f);
-        progressRunning.setAnimated(true, 4000);
+//        this variable is the base for percentage since will measure all activity percentage except that of the still activity
+        float allActivityTotalTime = total - activityLength[2];
+//        Running -> 4
+//        Vehicle -> 3
+//        Still -> 2
+//        Bicycle -> 1
+//        Walking -> 0
 
+        TextView runningTime = rootView.findViewById(R.id.running_time);
+        runningTime.setText(activityTime[4]);
+        BiColoredProgress progressRunning = rootView.findViewById(R.id.progress_running);
+        progressRunning.setProgress(((float)activityLength[4]/(float)allActivityTotalTime)*100);
+        progressRunning.setAnimated(
+                true, 4000);
+        TextView walkingTime = rootView.findViewById(R.id.walking_time);
+        walkingTime.setText(activityTime[0]);
         BiColoredProgress progressWalking = rootView.findViewById(R.id.progress_walking);
-        progressWalking.setProgress(33f);
+        progressWalking.setProgress(((float)activityLength[0]/ allActivityTotalTime)*100);
         progressWalking.setAnimated(true, 4000);
 
+        TextView bikingTime = rootView.findViewById(R.id.biking_time);
+        bikingTime.setText(activityTime[1]);
         BiColoredProgress progressBiking = rootView.findViewById(R.id.progress_biking);
-        progressBiking.setProgress(34f);
+        progressBiking.setProgress(((float)activityLength[1]/ allActivityTotalTime)*100);
         progressBiking.setAnimated(true, 4000);
 
+        TextView vehicleTime = rootView.findViewById(R.id.vehicle_time);
+        vehicleTime.setText(activityTime[3]);
         BiColoredProgress progressVehicle = rootView.findViewById(R.id.progress_vehicle);
-        progressVehicle.setProgress(10f);
+        progressVehicle.setProgress(((float)activityLength[3]/ allActivityTotalTime)*100);
         progressVehicle.setAnimated(true, 4000);
 
+        TextView stillTime = rootView.findViewById(R.id.still_time);
+        stillTime.setText(activityTime[2]);
+        BiColoredProgress progressStill = rootView.findViewById(R.id.progress_still);
+        progressStill.setProgress(((float)activityLength[2]/(float)total)*100);
+        progressStill.setAnimated(true, 4000);
 
         return rootView;
     }
@@ -140,11 +191,10 @@ public class ActivityFragment extends Fragment {
         }
     }
 
-
-
     @Override
     public void onDetach() {
         super.onDetach();
+        unregister();
         mListener = null;
     }
 
@@ -166,8 +216,9 @@ public class ActivityFragment extends Fragment {
 //    testing section code
     public void register(){
         SensorManager localsensormanager = (SensorManager)getActivity().getSystemService(Context.SENSOR_SERVICE);
-        localsensormanager.registerListener(this.lis, localsensormanager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
-        localsensormanager.registerListener(this.lis, localsensormanager.getDefaultSensor(Sensor.TYPE_GYROSCOPE), SensorManager.SENSOR_DELAY_FASTEST);
+        localsensormanager.registerListener(this.lis, localsensormanager.getDefaultSensor(Sensor.TYPE_GRAVITY), SensorManager.SENSOR_DELAY_NORMAL);
+        localsensormanager.registerListener(this.lis, localsensormanager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_NORMAL);
+        localsensormanager.registerListener(this.lis, localsensormanager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), SensorManager.SENSOR_DELAY_NORMAL);
 
     }
 
@@ -175,25 +226,47 @@ public class ActivityFragment extends Fragment {
         ((SensorManager)getActivity().getSystemService(Context.SENSOR_SERVICE)).unregisterListener(this.lis);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+    }
+
     private SensorEventListener lis = new SensorEventListener(){
 
         @Override
         public void onSensorChanged(SensorEvent sensorEvent) {
             Sensor sensor = sensorEvent.sensor;
-            if(sensor.getType() == Sensor.TYPE_ACCELEROMETER){
-                textview_x.setText("X: "+ sensorEvent.values[0]);
-                textview_y.setText("Y: "+ sensorEvent.values[1]);
-                textview_z.setText("Z: "+ sensorEvent.values[2]);
-            }
+            if((gravityData != null) && (magneticData != null) && (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION)){
+                float[] rotationMatrix = new float[16];
+                float[] I = new float[16];
+                float[] deviceRelativeAcceleration = new float[4];
+                float[] inv = new float[16];
+                float[] earthAcc = new float[16];
 
-            if(sensor.getType() == Sensor.TYPE_GYROSCOPE){
-                textgyro_x.setText("X: "+sensorEvent.values[0]);
-                textgyro_y.setText("X: "+sensorEvent.values[1]);
-                textgyro_z.setText("X: "+sensorEvent.values[2]);
-            }
+                deviceRelativeAcceleration[0] = sensorEvent.values[0];
+                deviceRelativeAcceleration[1] = sensorEvent.values[1];
+                deviceRelativeAcceleration[2] = sensorEvent.values[2];
+                deviceRelativeAcceleration[3] = 0;
 
+                SensorManager.getRotationMatrix(rotationMatrix, I, gravityData, magneticData);
+                Matrix.invertM(inv, 0, rotationMatrix, 0);
+                Matrix.multiplyMV(earthAcc, 0 , inv, 0, deviceRelativeAcceleration, 0);
+
+                data_x.setText("X: "+ earthAcc[0]);
+                data_y.setText("Y: "+ earthAcc[1]);
+                data_z.setText("Z: "+ earthAcc[2]);
+            }else if (sensor.getType() == Sensor.TYPE_GRAVITY){
+                gravityData = sensorEvent.values;
+            }else if (sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD){
+                magneticData = sensorEvent.values;
+            }
         }
-
         public void onAccuracyChanged(Sensor paramSensor, int paramInt){
 
         }

@@ -2,10 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.upv.rosiebelt.safefit">
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -20,6 +21,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -27,6 +29,7 @@
             android:name=".HomeActivity"
             android:label="Safe And Fit"
             android:theme="@style/AppTheme.NoActionBar" />
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAYn_R_8s7IPnyySBBBa_u5xzZPKvlYl1M" />
@@ -42,11 +45,15 @@
         <activity
             android:name=".MedicalRecordActivity"
             android:label="Medical Record"
-            android:theme="@style/AppTheme.NoActionBar"
-            />
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <service android:name=".utility.BackgroundDetectedActivitiesService" />
         <service android:name=".utility.DetectedActivitiesIntentService" />
+
+        <activity
+            android:name=".AccidentActivity"
+            android:label="@string/title_activity_accident"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

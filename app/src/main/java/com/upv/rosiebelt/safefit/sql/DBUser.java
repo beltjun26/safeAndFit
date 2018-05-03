@@ -13,7 +13,8 @@ import android.provider.BaseColumns;
 public class DBUser{
 
     public static final String SQL_CREATE_ENTRIES = "CREATE TABLE " +UserEntry.TABLE_NAME+ " (" + UserEntry._ID + " INTEGER PRIMARY KEY, "
-            + UserEntry.COLUMN_NAME_FULLNAME + " TEXT," + UserEntry.COLUMN_NAME_EMAIL +" TEXT,"+ UserEntry.COLUMN_NAME_SEX + " TEXT)";
+            + UserEntry.COLUMN_NAME_FULLNAME + " TEXT," + UserEntry.COLUMN_NAME_EMAIL +" TEXT, "+UserEntry.COLUMN_HEIGHT+" TEXT, "
+            +UserEntry.COLUMN_WEIGHT+" TEXT, "+UserEntry.COLUMN_CONTACT_PERSON+" TEXT, "+ UserEntry.COLUMN_NAME_SEX + " TEXT)";
     public static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " +  UserEntry.TABLE_NAME;
 
     public DBManager userdbhelper;
@@ -26,6 +27,9 @@ public class DBUser{
         public static final String COLUMN_NAME_FULLNAME = "fullname";
         public static final String COLUMN_NAME_EMAIL = "email";
         public static final String COLUMN_NAME_SEX = "sex";
+        public static final String COLUMN_CONTACT_PERSON = "contact_person";
+        public static final String COLUMN_HEIGHT = "height";
+        public static final String COLUMN_WEIGHT = "weight";
     }
 
     public int exist(){

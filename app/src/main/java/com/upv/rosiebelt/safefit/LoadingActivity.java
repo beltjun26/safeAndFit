@@ -14,14 +14,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.upv.rosiebelt.safefit.sql.DBUser;
 
 public class LoadingActivity extends AppCompatActivity {
     private SensorManager mSensorManager;
     private ProgressBar mProgressBar;
-    private TextView loadingText;
     private int progressStatus = 0;
     private Handler mHandler = new Handler();
     private Sensor accelerometer, gyroscope;
@@ -33,7 +31,6 @@ public class LoadingActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_loading);
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-        loadingText = (TextView) findViewById(R.id.loadingCompleteTextView);
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         gyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -55,6 +52,11 @@ public class LoadingActivity extends AppCompatActivity {
                         public void run() {
                             mProgressBar.setProgress(20);
                             while(progressStatus < 100){
+                                if(progressStatus == 30){
+                                    Intent intent1 = new Intent(LoadingActivity.this, com.upv.rosiebelt.safefit.utility.BackgroundDetectedActivitiesService.class);
+                                    startService(intent1);
+                                    progressStatus = 70;
+                                }
                                 progressStatus++;
                                 android.os.SystemClock.sleep(10);
                                 mHandler.post(new Runnable() {
@@ -67,7 +69,6 @@ public class LoadingActivity extends AppCompatActivity {
                             mHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    loadingText.setVisibility(View.VISIBLE);
                                     Intent intent = new Intent(LoadingActivity.this, HomeActivity.class);
                                     intent.putExtra("USER_ID", dbuser.exist());
                                     startActivity(intent);
@@ -89,6 +90,10 @@ public class LoadingActivity extends AppCompatActivity {
                     while(progressStatus < 100){
                         progressStatus++;
                         android.os.SystemClock.sleep(10);
+                        if(progressStatus == 30){
+                            Intent intent1 = new Intent(LoadingActivity.this, com.upv.rosiebelt.safefit.utility.BackgroundDetectedActivitiesService.class);
+                            startService(intent1);
+                        }
                         mHandler.post(new Runnable() {
                             @Override
                             public void run() {
@@ -99,9 +104,9 @@ public class LoadingActivity extends AppCompatActivity {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            loadingText.setVisibility(View.VISIBLE);
                             Intent intent = new Intent(LoadingActivity.this, HomeActivity.class);
                             intent.putExtra("USER_ID", dbuser.exist());
+
                             startActivity(intent);
                         }
                     });

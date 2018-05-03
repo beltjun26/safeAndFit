@@ -96,7 +96,6 @@ public class DetectedActivitiesIntentService extends IntentService{
                         backgroundDetectedActivitiesService.setRecentConfidence(detectedActivity.getConfidence());
                         broadcastActivity(detectedActivity);
                     }
-
                 }
             }
         }
@@ -123,7 +122,6 @@ public class DetectedActivitiesIntentService extends IntentService{
         dbActivities = new DBActivities(DetectedActivitiesIntentService.this);
         Intent intent = new Intent(DetectedActivitiesIntentService.this, BackgroundDetectedActivitiesService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-
     }
 
     String activityToString(int activityInt){

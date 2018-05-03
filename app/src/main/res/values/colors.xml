@@ -12,4 +12,11 @@
     <color name="green_c">#a1ff43</color>
     <color name="blue_c">#4287ff</color>
     <color name="yellow_c">#fff34b</color>
+
+    <!--pie graph color-->
+    <color name="blue_pie">#86E9FF</color>
+    <color name="green_pie">#ADFF86</color>
+    <color name="yellow_pie">#F5FF81</color>
+    <color name="red_pie">#fc8282</color>
+    "
 </resources>

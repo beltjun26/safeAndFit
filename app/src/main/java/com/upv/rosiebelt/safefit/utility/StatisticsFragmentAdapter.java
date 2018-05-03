@@ -1,13 +1,13 @@
-package com.upv.rosiebelt.safefit;
+package com.upv.rosiebelt.safefit.utility;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import com.upv.rosiebelt.safefit.fragments.DataFragment;
 import com.upv.rosiebelt.safefit.fragments.StatisticsMonth;
 import com.upv.rosiebelt.safefit.fragments.StatisticsWeek;
-import com.upv.rosiebelt.safefit.fragments.StatisticsYear;
 
 public class StatisticsFragmentAdapter extends FragmentPagerAdapter{
     private Context context;
@@ -20,7 +20,7 @@ public class StatisticsFragmentAdapter extends FragmentPagerAdapter{
     @Override
     public Fragment getItem(int position) {
         if(position == 2){
-            return new StatisticsYear();
+            return new DataFragment();
         }if(position == 1){
             return new StatisticsMonth();
         }else{
@@ -41,7 +41,7 @@ public class StatisticsFragmentAdapter extends FragmentPagerAdapter{
             case 1:
                 return "Month";
             case 2:
-                return "Year";
+                return "Achievements";
             default:
                 return null;
 

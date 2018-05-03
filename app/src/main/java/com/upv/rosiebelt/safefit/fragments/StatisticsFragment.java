@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.upv.rosiebelt.safefit.R;
-import com.upv.rosiebelt.safefit.StatisticsFragmentAdapter;
+import com.upv.rosiebelt.safefit.utility.StatisticsFragmentAdapter;
 
 /**
  * A simple {@link Fragment} subclass.

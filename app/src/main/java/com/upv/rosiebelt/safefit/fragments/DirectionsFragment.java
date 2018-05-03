@@ -1,9 +1,13 @@
 package com.upv.rosiebelt.safefit.fragments;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,10 +33,11 @@ import com.upv.rosiebelt.safefit.utility.LocationTracker;
  * Use the {@link DirectionsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class DirectionsFragment extends Fragment implements OnMapReadyCallback{
+public class DirectionsFragment extends Fragment implements OnMapReadyCallback {
 
-//    customed variable
+    //    customed variable
     private GoogleApiClient mGoogleApiClient;
+    private final int REQUEST_LOCATION_CODE =1;
     GoogleMap mGoogleMap;
     LocationManager locationManager;
     MapView mMapView;
@@ -44,7 +49,7 @@ public class DirectionsFragment extends Fragment implements OnMapReadyCallback{
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-//    paremeter for saving activty instace
+    //    paremeter for saving activty instace
     private static final String KEY_CAMERA_POSITION = "camera_position";
     private static final String KEY_LOCATION = "location";
 
@@ -107,15 +112,21 @@ public class DirectionsFragment extends Fragment implements OnMapReadyCallback{
 
 
         tracker = new LocationTracker(getActivity());
-        if(tracker.isLocationEnabled()){
+        if (tracker.isLocationEnabled()) {
             mMapView = (MapView) mView.findViewById(R.id.direction_map);
-            if (mMapView != null){
-                mMapView.onCreate(null);
-                mMapView.onResume();
-                mMapView.getMapAsync(this);
+            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                        REQUEST_LOCATION_CODE);
+            }else{
+                if (mMapView != null) {
+                    mMapView.onCreate(null);
+                    mMapView.onResume();
+                    mMapView.getMapAsync(this);
+                }
             }
-        }
-        else{
+
+        } else {
             tracker.askToOnLocation();
         }
 
@@ -131,7 +142,7 @@ public class DirectionsFragment extends Fragment implements OnMapReadyCallback{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        mView =  inflater.inflate(R.layout.fragment_directions, container, false);
+        mView = inflater.inflate(R.layout.fragment_directions, container, false);
         return mView;
     }
 
@@ -141,7 +152,6 @@ public class DirectionsFragment extends Fragment implements OnMapReadyCallback{
             mListener.onFragmentInteraction(uri);
         }
     }
-
 
 
     @Override
@@ -180,5 +190,20 @@ public class DirectionsFragment extends Fragment implements OnMapReadyCallback{
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and nameo
         void onFragmentInteraction(Uri uri);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode){
+            case REQUEST_LOCATION_CODE:{
+                if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    if (mMapView != null) {
+                        mMapView.onCreate(null);
+                        mMapView.onResume();
+                        mMapView.getMapAsync(this);
+                    }
+                }
+            }
+        }
     }
 }

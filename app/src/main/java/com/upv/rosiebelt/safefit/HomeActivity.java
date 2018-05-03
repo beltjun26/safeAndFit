@@ -191,6 +191,7 @@ public class HomeActivity extends AppCompatActivity
     public void onPause() {
         super.onPause();
         LocalBroadcastManager.getInstance(HomeActivity.this).unregisterReceiver(broadcastReceiver);
+        backgroundDetectedActivitiesService.updateSteps();
     }
 
     @Override
@@ -205,11 +206,13 @@ public class HomeActivity extends AppCompatActivity
         super.onResume();
         if(mBound){
             handleUserActivity(backgroundDetectedActivitiesService.getRecentActivity(), backgroundDetectedActivitiesService.getRecentConfidence());
+            backgroundDetectedActivitiesService.updateSteps();
         }
         Cursor cursor = dbuser.getData(new String[]{DBUser.UserEntry.COLUMN_NAME_SEX, DBUser.UserEntry.COLUMN_NAME_FULLNAME, DBUser.UserEntry.COLUMN_NAME_EMAIL});
         ((TextView)navigationView.getHeaderView(0).findViewById(R.id.header_fullname)).setText(cursor.getString(cursor.getColumnIndex(DBUser.UserEntry.COLUMN_NAME_FULLNAME)));
         ((TextView)navigationView.getHeaderView(0).findViewById(R.id.header_email)).setText(cursor.getString(cursor.getColumnIndex(DBUser.UserEntry.COLUMN_NAME_EMAIL)));
         LocalBroadcastManager.getInstance(HomeActivity.this).registerReceiver(broadcastReceiver, new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY));
+
 
 
     }
@@ -218,6 +221,7 @@ public class HomeActivity extends AppCompatActivity
         Intent intent = new Intent(HomeActivity.this, BackgroundDetectedActivitiesService.class);
         startService(intent);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        Log.e("MBound ", Boolean.toString(mBound));
     }
 
     public void stopTracking(){

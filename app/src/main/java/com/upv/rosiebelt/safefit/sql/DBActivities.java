@@ -5,6 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
+import android.util.Log;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -118,4 +120,51 @@ public class DBActivities {
         return dateFormat.format(date);
     }
 
+    public long[] getTodayActivityTime(){
+        long[] activityLength = new long[5];
+        Cursor todayActivity = dataToday();
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        if(todayActivity.getCount() !=0 ){
+            String start, end, activityType;
+            Calendar calendarStart = Calendar.getInstance();
+            Calendar calendarEnd = Calendar.getInstance();
+            while(todayActivity.moveToNext()){
+/**
+ *           calculate the percentage for each activity
+ */
+                end = todayActivity.getString(todayActivity.getColumnIndex(DBActivities.ActivitiesEntry.COLUMN_TIME_END));
+                start = todayActivity.getString(todayActivity.getColumnIndex(DBActivities.ActivitiesEntry.COLUMN_TIME_START));
+                activityType = todayActivity.getString(todayActivity.getColumnIndex(DBActivities.ActivitiesEntry.COLUMN_ACTIVITY));
+                long difference = 0;
+                try{
+                    calendarEnd.setTime(dateFormat.parse(end));
+                    calendarStart.setTime(dateFormat.parse(start));
+                    difference = calendarEnd.getTimeInMillis() - calendarStart.getTimeInMillis();;
+                    switch (activityType) {
+                        case "Walking":
+                            activityLength[0] = activityLength[0] + difference;
+                            break;
+                        case "Bicycle":
+                            activityLength[1] = activityLength[1] + difference;
+                            break;
+                        case "Still":
+                            activityLength[2] = activityLength[2] + difference;
+                            break;
+                        case "Vehicle":
+                            activityLength[3] = activityLength[3] + difference;
+                            break;
+                        case "Running":
+                            activityLength[4] = activityLength[4] + difference;
+                            break;
+                    }
+                }catch (Exception e){
+                    Log.e("DataBase Errro", "Error in parsing");
+                }
+            }
+            return activityLength;
+        }else{
+            return null;
+        }
+    }
 }

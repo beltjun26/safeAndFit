@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.upv.rosiebelt.safefit.HomeActivity;
 import com.upv.rosiebelt.safefit.R;
+import com.upv.rosiebelt.safefit.sql.DBSteps;
 import com.upv.rosiebelt.safefit.utility.BackgroundListener;
 
 import antonkozyriatskyi.circularprogressindicator.CircularProgressIndicator;
@@ -85,7 +86,7 @@ public class HomeFragment extends Fragment implements BackgroundListener{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
+        DBSteps dbSteps = new DBSteps(getActivity());
         rootView =  inflater.inflate(R.layout.fragment_home, container, false);
         Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.home_fragment_toolbar);
         ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
@@ -102,6 +103,8 @@ public class HomeFragment extends Fragment implements BackgroundListener{
         if(((HomeActivity)getActivity()).getbackgroundService() != null){
             noSteps.setText(Integer.toString(((HomeActivity)getActivity()).getbackgroundService().getSteps()));
             ((HomeActivity) getActivity()).getbackgroundService().setBackgroundListener(this);
+        }else{
+            noSteps.setText(Integer.toString(dbSteps.getSteps()));
         }
 
         mode_text.setText(((HomeActivity) getActivity()).currentModetext);

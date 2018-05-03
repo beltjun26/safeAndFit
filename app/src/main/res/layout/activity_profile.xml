@@ -78,12 +78,44 @@
             android:paddingTop="10dp"
             android:textSize="13sp"
             android:text="Sex"/>
-        <EditText
+        <RadioGroup
             android:id="@+id/content_sex"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/title"
-            android:text="Male"
+            android:textColor="#222"
+            android:orientation="horizontal"
+            android:paddingBottom="5dp">
+            <RadioButton
+                android:id="@+id/radio_male"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Male" />
+            <RadioButton
+                android:id="@+id/radio_female"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Female"
+                android:layout_marginLeft="30dp"/>
+        </RadioGroup>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
+        <TextView
+            android:id="@+id/title_contact"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:textSize="13sp"
+            android:text="Contact Person"/>
+        <EditText
+            android:id="@+id/content_contactP"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/title"
+            android:text=""
             android:textSize="18dp"
             android:textColor="#222"
             android:background="@android:color/transparent"
@@ -92,6 +124,92 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
+
+        <TextView
+            android:id="@+id/title_height"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:textSize="13sp"
+            android:text="Height"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_gravity="center"
+                android:layout_weight="1">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Feet:"/>
+                <EditText
+                    android:id="@+id/content_height_feet"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/title"
+                    android:text=""
+                    android:textSize="18dp"
+                    android:textStyle="bold"
+                    android:textColor="#222"
+                    android:background="@android:color/transparent"
+                    android:paddingBottom="5dp"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_gravity="center"
+                android:layout_weight="1">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Inches:"/>
+                <EditText
+                    android:id="@+id/content_height_inch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/title"
+                    android:text=""
+                    android:textSize="18dp"
+                    android:textStyle="bold"
+                    android:textColor="#222"
+                    android:background="@android:color/transparent"
+                    android:paddingBottom="5dp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+        <TextView
+            android:id="@+id/title_weight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:textSize="13sp"
+            android:text="Weight(kl)"/>
+        <EditText
+            android:id="@+id/content_weight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/title"
+            android:text=""
+            android:textSize="18dp"
+            android:textStyle="bold"
+            android:textColor="#222"
+            android:background="@android:color/transparent"
+            android:paddingBottom="5dp"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
         <Button
             android:id="@+id/button"
             android:layout_width="wrap_content"

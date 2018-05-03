@@ -7,6 +7,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.opengl.Matrix;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -17,6 +18,7 @@ import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.upv.rosiebelt.safefit.AccidentActivity;
 import com.upv.rosiebelt.safefit.sql.DBSteps;
 
 /**
@@ -35,8 +37,11 @@ public class BackgroundDetectedActivitiesService extends Service  implements Sen
     public String startTime;
     StepDetector stepDetector;
     SensorManager sensorManager;
-    Sensor accelometer;
+    Sensor accelometer, magnetic, linear, gravity;
     DBSteps dbSteps;
+    AccidentDetection accidentDetection;
+
+    private float[] gravityData = null, magneticData = null;
 
     IBinder iBinder = new BackgroundDetectedActivitiesService.LocalBinder();
 
@@ -61,15 +66,23 @@ public class BackgroundDetectedActivitiesService extends Service  implements Sen
         //        creating instance of SensorManagerdbActivities
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        magnetic = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        linear = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        gravity = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
+
 
 
         stepDetector = new StepDetector();
         stepDetector.registerListener(this);
 
-        sensorManager.registerListener(BackgroundDetectedActivitiesService.this, accelometer, SensorManager.SENSOR_DELAY_FASTEST);
+        sensorManager.registerListener(BackgroundDetectedActivitiesService.this, accelometer, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(BackgroundDetectedActivitiesService.this, linear, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(BackgroundDetectedActivitiesService.this, gravity, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(BackgroundDetectedActivitiesService.this, magnetic, SensorManager.SENSOR_DELAY_NORMAL);
 
 //        check for the current day number of steps
         numSteps = dbSteps.getSteps();
+        accidentDetection = new AccidentDetection();
     }
     @Override
     public IBinder onBind(Intent intent) {
@@ -117,19 +130,52 @@ public class BackgroundDetectedActivitiesService extends Service  implements Sen
         });
     }
 
+    public void updateSteps(){
+        dbSteps.setSteps(numSteps);
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
         removeActivityUpdatesButtonHandler();
         sensorManager.unregisterListener(BackgroundDetectedActivitiesService.this);
-        dbSteps.setSteps(numSteps);
+        updateSteps();
     }
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
+        Sensor sensor = sensorEvent.sensor;
         if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             stepDetector.updateAccel(
                     sensorEvent.timestamp, sensorEvent.values[0], sensorEvent.values[1], sensorEvent.values[2]);
+        }
+        if((gravityData != null) && (magneticData != null) && (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION)){
+            float[] rotationMatrix = new float[16];
+            float[] I = new float[16];
+            float[] deviceRelativeAcceleration = new float[4];
+            float[] inv = new float[16];
+            float[] earthAcc = new float[16];
+
+            deviceRelativeAcceleration[0] = sensorEvent.values[0];
+            deviceRelativeAcceleration[1] = sensorEvent.values[1];
+            deviceRelativeAcceleration[2] = sensorEvent.values[2];
+            deviceRelativeAcceleration[3] = 0;
+
+            SensorManager.getRotationMatrix(rotationMatrix, I, gravityData, magneticData);
+            Matrix.invertM(inv, 0, rotationMatrix, 0);
+            Matrix.multiplyMV(earthAcc, 0 , inv, 0, deviceRelativeAcceleration, 0);
+
+            accidentDetection.updateData(earthAcc);
+            accidentDetection.checkAccident();
+            if(accidentDetection.checkAccident()){
+                Intent alertAccident = new Intent(this, AccidentActivity.class);
+                alertAccident.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(alertAccident);
+            }
+        }else if (sensor.getType() == Sensor.TYPE_GRAVITY){
+            gravityData = sensorEvent.values;
+        }else if (sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD){
+            magneticData = sensorEvent.values;
         }
     }
 
